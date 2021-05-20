@@ -35,14 +35,11 @@ public final class ChatConnection extends WebkitConnection implements UUIDContai
         if (!category.equals("message"))
             return;
 
-        int ind = name.indexOf(':');
-        String cmd = name.substring(0, ind);
-
-        if (!cmd.equals("name"))
+        if (!name.equals("send"))
             return;
-        String message = name.substring(ind);
+        String message = data.asString();
 
-        if (Chats.push(this, message))
+        if (!Chats.push(this, message))
             sendToPanel("error");
     }
 }

@@ -38,7 +38,7 @@ public final class ChatServer implements PagePropertiesProvider, ContextualProvi
     }
 
     private ChatServer(InetAddress address, int portBase) throws IOException {
-        this.context = CONTEXT.plus("ChatServer", this);
+        this.context = CONTEXT.plus("ChatServer", this, ForkJoinPool.commonPool());
         WebkitConfiguration.initialize(this);
         this.webkit = new WebkitServer(
                 this,
