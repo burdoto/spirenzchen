@@ -1,0 +1,38 @@
+Chat Page
+
+<script type="application/javascript">
+    const input = document.getElementById('msgInput');
+
+    function sendMessage() {
+        sendCommand("message/send", input.textContent);
+    }
+
+    let listeners = false;
+
+    function appendMessage(text) {
+        input.textContent += '\n' + text;
+    }
+
+    async function initialize() {
+        console.info('Initializing Chat')
+
+        if (!listeners) {
+            // event listeners
+            document.addEventListener('chat/receive', e => appendMessage(e.detail))
+
+            listeners = true;
+        }
+    }
+
+    document.addEventListener('frameReady', initialize)
+</script>
+
+<label>
+    Web Chat:
+    <textarea readonly></textarea>
+</label>
+<label>
+    Send Message
+    <input id="msgInput" type="text" />
+    <button onclick="sendMessage()">Send</button>
+</label>

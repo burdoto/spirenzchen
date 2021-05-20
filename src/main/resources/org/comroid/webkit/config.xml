@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+    <frames>
+        <main>frame/main.html</main>
+    </frames>
+    <panels>
+        <!-- Main Panels -->
+        <home>panel/chat.html</home>
+        <error>panel/error.html</error>
+    </panels>
+    <parts>
+        <!-- Common Parts -->
+        <header>part/header.html</header>
+        <footer>part/footer.html</footer>
+    </parts>
+</data>
