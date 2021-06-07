@@ -21,9 +21,10 @@ public final class ChatConnection extends WebkitConnection implements UUIDContai
 
     public ChatConnection(WebSocket socketBase, REST.Header.List headers, ContextualProvider context) {
         super(socketBase, headers, context);
-
+/*
         if (!Chats.pushConnection(this))
             throw new RuntimeException("Could not join Chat");
+ */
     }
 
     void appendMessage(String text) {

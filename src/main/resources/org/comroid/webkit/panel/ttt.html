@@ -1,50 +1,74 @@
-Chat Page
-
+<h3>Tic Tac Toe</h3>
 <br/>
-
-<label>
-    Web Chat:
-    <br/>
-    <textarea id="msgOutput" style="width: 100%; height: 40%" readonly></textarea>
-</label>
+<a href="ttt">Start new Game</a>
 <br/>
+<style>
+    .box {
+        height: 50px;
+        width: 50px;
+    }
+</style>
 <br/>
-<label>
-    Send Message
-    <input id="msgInput" type="text" />
-    <button id="sendBtn" onclick="sendMessage()">Send</button>
-</label>
+<h2 id="textLose" style="visibility: hidden; color: darkred">You Lose!</h2>
+<h2 id="textWin" style="visibility: hidden; color: darkgreen">You Win!</h2>
+<table>
+    <tbody>
+    <tr>
+        <td id="box1" class="box" onclick="callBox(0)"></td>
+        <td id="box2" class="box" onclick="callBox(1)"></td>
+        <td id="box3" class="box" onclick="callBox(2)"></td>
+    </tr>
+    <tr>
+        <td id="box4" class="box" onclick="callBox(3)"></td>
+        <td id="box5" class="box" onclick="callBox(4)"></td>
+        <td id="box6" class="box" onclick="callBox(5)"></td>
+    </tr>
+    <tr>
+        <td id="box7" class="box" onclick="callBox(6)"></td>
+        <td id="box8" class="box" onclick="callBox(7)"></td>
+        <td id="box9" class="box" onclick="callBox(8)"></td>
+    </tr>
+    </tbody>
+</table>
 
 <script type="application/javascript">
-    const input = document.getElementById('msgInput');
-    const output = document.getElementById('msgOutput');
-    const submit = document.getElementById('sendBtn');
+    const session = window.location.hash.substr(1);
+    let running = false;
 
-    function sendMessage() {
-        sendCommand("message/send", input.value);
-        input.value = ""
+    function callBox(index) {
+        if (!running)
+            console.log('Game is not running');
+        sendCommand("callBox", {'index': index});
+    }
+
+    function receiveBox(data) {
+        let plr = data['player'];
+        let ind = data['index'];
+        let box = document.getElementById('box' + (ind + 1));
+
+        box.textContent = plr;
+    }
+
+    function concludeGame(data) {
+        let isWin = data['win'];
+
+        if (isWin)
+            document.getElementById('textWin').style.visibility = 'visible'
+        else document.getElementById('textLose').style.visibility = 'visible'
     }
 
     let listeners = false;
 
-    function appendMessage(text) {
-        output.textContent += '\n' + text;
-    }
-
     async function initialize() {
-        console.info('Initializing Chat')
+        console.info('Initializing TTT')
 
         if (!listeners) {
             // event listeners
-            document.addEventListener('chat/receive', e => appendMessage(e.detail))
-
-            submit.addEventListener("keydown", function (e) {
-                if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
-                    sendMessage()
-                }
-            });
+            document.addEventListener('ttt/receive', e => receiveBox(e.detail))
+            document.addEventListener('ttt/conclude', e => concludeGame(e.detail))
 
             listeners = true;
+            running = true;
         }
     }
 
