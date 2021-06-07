@@ -6,6 +6,7 @@
     <panels>
         <!-- Main Panels -->
         <home>panel/chat.html</home>
+        <ttt>panel/ttt.html</ttt>
         <error>panel/error.html</error>
     </panels>
     <parts>

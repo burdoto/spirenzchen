@@ -1,0 +1,52 @@
+Chat Page
+
+<br/>
+
+<label>
+    Web Chat:
+    <br/>
+    <textarea id="msgOutput" style="width: 100%; height: 40%" readonly></textarea>
+</label>
+<br/>
+<br/>
+<label>
+    Send Message
+    <input id="msgInput" type="text" />
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+</label>
+
+<script type="application/javascript">
+    const input = document.getElementById('msgInput');
+    const output = document.getElementById('msgOutput');
+    const submit = document.getElementById('sendBtn');
+
+    function sendMessage() {
+        sendCommand("message/send", input.value);
+        input.value = ""
+    }
+
+    let listeners = false;
+
+    function appendMessage(text) {
+        output.textContent += '\n' + text;
+    }
+
+    async function initialize() {
+        console.info('Initializing Chat')
+
+        if (!listeners) {
+            // event listeners
+            document.addEventListener('chat/receive', e => appendMessage(e.detail))
+
+            submit.addEventListener("keydown", function (e) {
+                if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
+                    sendMessage()
+                }
+            });
+
+            listeners = true;
+        }
+    }
+
+    document.addEventListener('frameReady', initialize)
+</script>

@@ -1,12 +1,14 @@
 package de.kaleidox.kram.chat;
 
 import org.comroid.api.ContextualProvider;
+import org.comroid.api.ResourceLoader;
 import org.comroid.api.os.OS;
 import org.comroid.restless.REST;
 import org.comroid.restless.adapter.java.JavaHttpAdapter;
 import org.comroid.uniform.Context;
 import org.comroid.uniform.adapter.json.fastjson.FastJSONLib;
 import org.comroid.webkit.config.WebkitConfiguration;
+import org.comroid.webkit.config.WebkitResourceLoader;
 import org.comroid.webkit.model.PagePropertiesProvider;
 import org.comroid.webkit.server.WebkitServer;
 
@@ -39,7 +41,6 @@ public final class ChatServer implements PagePropertiesProvider, ContextualProvi
 
     private ChatServer(InetAddress address, int portBase) throws IOException {
         this.context = CONTEXT.plus("ChatServer", this, ForkJoinPool.commonPool());
-        WebkitConfiguration.initialize(this);
         this.webkit = new WebkitServer(
                 this,
                 ForkJoinPool.commonPool(),
