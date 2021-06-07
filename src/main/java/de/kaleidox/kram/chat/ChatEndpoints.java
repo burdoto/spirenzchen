@@ -1,13 +1,25 @@
 package de.kaleidox.kram.chat;
 
+import org.comroid.api.Polyfill;
 import org.comroid.api.StreamSupplier;
+import org.comroid.restless.REST;
+import org.comroid.restless.exception.RestEndpointException;
 import org.comroid.restless.server.ServerEndpoint;
+import org.comroid.uniform.Context;
+import org.comroid.uniform.node.UniNode;
 import org.intellij.lang.annotations.Language;
 
+import java.net.URI;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public enum ChatEndpoints implements ServerEndpoint.This {
-    ;
+    TTT_join("/ttt") {
+        @Override
+        public REST.Response executeGET(Context context, URI requestURI, REST.Request<UniNode> request, String[] urlParams) throws RestEndpointException {
+            return new REST.Response(Polyfill.uri("http://" + request.getHeaders().getFirst("Host") + "/main/ttt#" + UUID.randomUUID()));
+        }
+    };
     public static final StreamSupplier<ServerEndpoint> VALUES = StreamSupplier.of(values());
     private final String extension;
     private final String[] regExp;

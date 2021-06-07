@@ -1,16 +1,29 @@
 <h3>Tic Tac Toe</h3>
 <br/>
-<a href="ttt">Start new Game</a>
+<a href="~/ttt">Start new Game</a>
 <br/>
 <style>
     .box {
         height: 50px;
         width: 50px;
+        background-color: black;
+        color: white;
+    }
+    .boxOccupied {
+        height: 50px;
+        width: 50px;
+        background-color: black;
+        color: white;
+    }
+
+    .box:hover {
+        background-color: grey;
     }
 </style>
 <br/>
-<h2 id="textLose" style="visibility: hidden; color: darkred">You Lose!</h2>
+<h2 id="textWait" style="visibility: visible; color: darkblue">Waiting for other player...</h2>
 <h2 id="textWin" style="visibility: hidden; color: darkgreen">You Win!</h2>
+<h2 id="textLose" style="visibility: hidden; color: darkred">You Lose!</h2>
 <table>
     <tbody>
     <tr>
@@ -32,29 +45,54 @@
 </table>
 
 <script type="application/javascript">
+    if (window.location.hash === "" || window.location.hash.length === 1)
+        window.location.href = "http://" + window.location.host + "/ttt";
+
     const session = window.location.hash.substr(1);
     let running = false;
+    let occupied = []
+
+    function getBoxByIndex(ind) {
+        return document.getElementById('box' + (ind + 1));
+    }
+
+    function isOccupied(index) {
+        for (let any of occupied) {
+            if (any === index)
+                return true;
+        }
+        return false;
+    }
 
     function callBox(index) {
+        if (isOccupied(index))
+            return;
         if (!running)
             console.log('Game is not running');
-        sendCommand("callBox", {'index': index});
+        sendCommand("ttt/callBox", {'index': index});
+    }
+
+    function startGame(data) {
+        document.getElementById('textWait').style.visibility = 'hidden';
     }
 
     function receiveBox(data) {
         let plr = data['player'];
         let ind = data['index'];
-        let box = document.getElementById('box' + (ind + 1));
+        let box = getBoxByIndex(ind);
 
         box.textContent = plr;
+        box.className = 'boxOccupied';
+        occupied.push(ind);
     }
 
     function concludeGame(data) {
-        let isWin = data['win'];
+        let isWin = data['winner'];
 
         if (isWin)
-            document.getElementById('textWin').style.visibility = 'visible'
-        else document.getElementById('textLose').style.visibility = 'visible'
+            document.getElementById('textWin').style.visibility = 'visible';
+        else document.getElementById('textLose').style.visibility = 'visible';
+        running = false;
     }
 
     let listeners = false;
@@ -64,11 +102,14 @@
 
         if (!listeners) {
             // event listeners
+            document.addEventListener('ttt/start', e => startGame(e.detail))
             document.addEventListener('ttt/receive', e => receiveBox(e.detail))
             document.addEventListener('ttt/conclude', e => concludeGame(e.detail))
 
             listeners = true;
             running = true;
+
+            sendCommand("ttt/connect", {'session': session});
         }
     }
 
