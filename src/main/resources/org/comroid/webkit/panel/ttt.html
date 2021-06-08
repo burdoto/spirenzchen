@@ -6,12 +6,14 @@
     .box {
         height: 50px;
         width: 50px;
+        font-size: 10pc;
         background-color: black;
         color: white;
     }
     .boxOccupied {
         height: 50px;
         width: 50px;
+        font-size: 10pc;
         background-color: black;
         color: white;
     }
@@ -27,19 +29,19 @@
 <table>
     <tbody>
     <tr>
-        <td id="box1" class="box" onclick="callBox(0)"></td>
-        <td id="box2" class="box" onclick="callBox(1)"></td>
-        <td id="box3" class="box" onclick="callBox(2)"></td>
+        <td id="box0" class="box" onclick="callBox(0)"></td>
+        <td id="box1" class="box" onclick="callBox(1)"></td>
+        <td id="box2" class="box" onclick="callBox(2)"></td>
     </tr>
     <tr>
-        <td id="box4" class="box" onclick="callBox(3)"></td>
-        <td id="box5" class="box" onclick="callBox(4)"></td>
-        <td id="box6" class="box" onclick="callBox(5)"></td>
+        <td id="box3" class="box" onclick="callBox(3)"></td>
+        <td id="box4" class="box" onclick="callBox(4)"></td>
+        <td id="box5" class="box" onclick="callBox(5)"></td>
     </tr>
     <tr>
-        <td id="box7" class="box" onclick="callBox(6)"></td>
-        <td id="box8" class="box" onclick="callBox(7)"></td>
-        <td id="box9" class="box" onclick="callBox(8)"></td>
+        <td id="box6" class="box" onclick="callBox(6)"></td>
+        <td id="box7" class="box" onclick="callBox(7)"></td>
+        <td id="box8" class="box" onclick="callBox(8)"></td>
     </tr>
     </tbody>
 </table>
@@ -53,7 +55,8 @@
     let occupied = []
 
     function getBoxByIndex(ind) {
-        return document.getElementById('box' + (ind + 1));
+        console.debug('getting box by index: ' + ind);
+        return document.getElementById('box' + ind);
     }
 
     function isOccupied(index) {
@@ -67,18 +70,22 @@
     function callBox(index) {
         if (isOccupied(index))
             return;
-        if (!running)
+        if (!running) {
             console.log('Game is not running');
+            return;
+        }
         sendCommand("ttt/callBox", {'index': index});
     }
 
     function startGame(data) {
         document.getElementById('textWait').style.visibility = 'hidden';
+        console.log('Game started');
     }
 
     function receiveBox(data) {
-        let plr = data['player'];
-        let ind = data['index'];
+        console.debug('receiving box:', data)
+        let plr = data.player;
+        let ind = data.index;
         let box = getBoxByIndex(ind);
 
         box.textContent = plr;
@@ -93,6 +100,7 @@
             document.getElementById('textWin').style.visibility = 'visible';
         else document.getElementById('textLose').style.visibility = 'visible';
         running = false;
+        console.log('Game concluded');
     }
 
     let listeners = false;
@@ -102,9 +110,9 @@
 
         if (!listeners) {
             // event listeners
-            document.addEventListener('ttt/start', e => startGame(e.detail))
-            document.addEventListener('ttt/receive', e => receiveBox(e.detail))
-            document.addEventListener('ttt/conclude', e => concludeGame(e.detail))
+            document.addEventListener('ttt/start', e => startGame(JSON.parse(e.detail)))
+            document.addEventListener('ttt/receive', e => receiveBox(JSON.parse(e.detail)))
+            document.addEventListener('ttt/conclude', e => concludeGame(JSON.parse(e.detail)))
 
             listeners = true;
             running = true;

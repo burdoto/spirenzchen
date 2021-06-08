@@ -2,6 +2,8 @@ package de.kaleidox.kram.ttt;
 
 import de.kaleidox.kram.chat.ChatConnection;
 import de.kaleidox.kram.chat.ChatServer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.comroid.api.BitmaskAttribute;
 import org.comroid.api.UUIDContainer;
 import org.comroid.uniform.SerializationAdapter;
@@ -12,10 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class TicTacToe implements UUIDContainer {
+    private static final Logger logger = LogManager.getLogger("TicTacToe Engine");
     private static final Map<UUID, ChatConnection> waitingForStart = new ConcurrentHashMap<>();
     private static final Collection<TicTacToe> sessions = new HashSet<>();
     private static final String[] PLAYER = new String[]{null, "X", "0"};
@@ -23,7 +24,7 @@ public final class TicTacToe implements UUIDContainer {
     private final ChatConnection player1;
     private final ChatConnection player2;
     private int[] board = new int[3*3];
-    private int turn = 1;
+    private int turn = 2;
 
     @Override
     public UUID getUUID() {
@@ -34,6 +35,8 @@ public final class TicTacToe implements UUIDContainer {
         this.session = session;
         this.player1 = player1;
         this.player2 = player2;
+        player1.sendCommand("ttt/start");
+        sessions.add(this);
     }
 
     private void concludeGame(int winner) {
@@ -41,6 +44,8 @@ public final class TicTacToe implements UUIDContainer {
         data.put("winner", winner);
         player1.sendCommand("ttt/conclude", data);
         player2.sendCommand("ttt/conclude", data);
+        sessions.remove(this);
+        logger.info("Game concluded by player " + winner);
     }
 
     private void publishBox(int boxIndex, int player) {
@@ -50,25 +55,30 @@ public final class TicTacToe implements UUIDContainer {
         board[boxIndex] = player;
         player1.sendCommand("ttt/receive", data);
         player2.sendCommand("ttt/receive", data);
+        logger.info("Box published: {} by player {}", boxIndex, player);
     }
 
     public static TicTacToe connectGame(UUID session, ChatConnection connection) {
         if (waitingForStart.containsKey(session)) {
             // start game instance
+            logger.info("Game Connecting...");
             return new TicTacToe(session, waitingForStart.remove(session), connection);
         } else {
             // wait for other player
             waitingForStart.put(session, connection);
+            logger.info("Player waiting for game...");
             return null;
         }
     }
 
     public static void callBox(ChatConnection connection, int index) {
+        logger.info("Game calling box {} ...", index);
         findSessionByConnection(connection).ifPresent(ttt -> ttt._callBox(connection, index));
     }
 
     private void _callBox(ChatConnection connection, int index) {
         int player = connection == player1 ? 1 : 2;
+        logger.info("Player {} calling box {} in player {} turn", player, index, turn);
         if (player != turn)
             return;
         publishBox(index, player);
@@ -199,6 +209,7 @@ public final class TicTacToe implements UUIDContainer {
     }
 
     private static Optional<TicTacToe> findSessionByConnection(ChatConnection connection) {
+        logger.info("Finding connection out of " + sessions.size());
         return sessions.stream()
                 .filter(it -> it.player1 == connection || it.player2 == connection)
                 .findAny();
