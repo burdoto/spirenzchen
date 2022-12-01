@@ -6,9 +6,9 @@ import org.comroid.restless.CommonHeaderNames;
 import org.comroid.restless.HTTPStatusCodes;
 import org.comroid.restless.REST;
 import org.comroid.restless.exception.RestEndpointException;
-import org.comroid.restless.server.ServerEndpoint;
 import org.comroid.uniform.Context;
 import org.comroid.uniform.node.UniNode;
+import org.comroid.webkit.server.ServerEndpoint;
 import org.intellij.lang.annotations.Language;
 
 import java.net.URI;
