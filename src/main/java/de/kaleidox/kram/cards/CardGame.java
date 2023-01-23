@@ -105,7 +105,9 @@ public class CardGame {
                                 || (arg1 != null && arg1.matches("\\d+")))
                             idx = Integer.parseInt(arg1 != null ? arg1 : arg0);
                         from = (table ? this.table[idx] : players[Math.max(0, idx - 1)]);
-                        System.out.printf("Top card in %s: %s%n", from, from.empty() ? "nothing" : from.peek());
+                        System.out.printf("Top card in %s: %s%n",
+                                table ? "Table " + idx : from,
+                                from.empty() ? "nothing" : from.peek());
                         break;
                     case "players":
                         for (Player plr : players)
