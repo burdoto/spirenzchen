@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Stack;
 
 public class Card implements Comparable<Card> {
     public final Face face;
@@ -40,10 +41,14 @@ public class Card implements Comparable<Card> {
         return MessageFormat.format("{0} of {1}", value, face);
     }
 
-    public static class Hand extends ArrayList<Card> {
+    public static class Stack extends java.util.Stack<Card> {
         public final int maxSize;
 
-        public Hand(int maxSize) {
+        public Stack() {
+            this(Integer.MAX_VALUE);
+        }
+
+        public Stack(int maxSize) {
             this.maxSize = maxSize;
         }
 
@@ -61,13 +66,13 @@ public class Card implements Comparable<Card> {
             super.add(index, element);
         }
 
-        public void fill(Deck fromDeck) {
+        public void fill(Deck fromDeck, int toSize) {
             if (size() != 0)
                 throw new RuntimeException("Hand is not empty");
 
             Collections.shuffle(fromDeck);
 
-            for (int i = 0; i < maxSize; i++)
+            for (int i = 0; i < toSize; i++)
                 add(fromDeck.remove(0));
         }
     }
