@@ -5,10 +5,10 @@ version '0.01-SNAPSHOT'
 
 apply from: 'gradle/vars.gradle'
 
-mainClassName = 'de.kaleidox.kram.chat.ChatServer'
+mainClassName = 'de.kaleidox.kram.cards.CardGame'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 
 tasks.findByName('wrapper')?.configure {
     gradleVersion = '6.2'
@@ -16,6 +16,11 @@ tasks.findByName('wrapper')?.configure {
 }
 
 compileJava.options.encoding = 'UTF-8'
+
+run {
+    standardInput = System.in
+    standardOutput = System.out
+}
 
 repositories {
     maven { url 'https://maven.comroid.org' }
