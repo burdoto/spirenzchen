@@ -70,8 +70,12 @@ public class CardGame {
     }
 
     public Player nextPlayer() {
-        var plr = currentPlayer = currentPlayer + 1 > players.length ? 0 : currentPlayer + 1;
+        var plr = currentPlayer = currentPlayer + 1 >= players.length ? 0 : currentPlayer + 1;
         return players[plr];
+    }
+
+    private void pass() {
+        System.out.printf("%s's turn%n", nextPlayer());
     }
 
     private void play() {
@@ -89,7 +93,7 @@ public class CardGame {
                     case "exit":
                         return;
                     case "pass":
-                        System.out.printf("%s's turn%n", nextPlayer());
+                        pass();
                         break;
                     case "table":
                     case "top":
@@ -131,6 +135,7 @@ public class CardGame {
                         idx = cmds.length >= 2 ? Integer.parseInt(cmds[1]) : 0;
                         var tgt = cmds.length >= 3 ? Integer.parseInt(cmds[2]) : 0;
                         player.play(this, idx, this.table[tgt]);
+                        pass();
                         break;
                     case "hand":
                         List<Card> hand = players[cmds.length == 2
