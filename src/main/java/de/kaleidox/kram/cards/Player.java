@@ -27,8 +27,8 @@ public class Player extends Card.Stack implements Named {
         var card = get(idx);
         if (game.type.canPlay(game, this, card, target)) {
             target.push(remove(idx));
-            System.out.printf("Played card %d (%s) to table %d%n", idx, card, target);
-        } else System.err.printf("You cannot play an %s to table %d%n", card, target);
+            System.out.printf("Played card %d (%s) to table %s%n", idx, card, target);
+        } else System.err.printf("You cannot play an %s to table %s%n", card, target);
     }
 
     @Override
