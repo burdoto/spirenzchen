@@ -109,6 +109,10 @@ public class CardGame {
         switch (cmds[0]) {
             case "exit":
                 return;
+            case "dash":
+                handleCmds("hand");
+                handleCmds("table");
+                return;
             case "pass":
                 pass();
                 break;
