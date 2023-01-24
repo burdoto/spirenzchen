@@ -7,7 +7,7 @@ public enum GameType implements IntegerAttribute {
         @Override
         public Card.Stack[] init(CardGame cardGame) {
             Card.Stack[] stacks = super.init(cardGame);
-            stacks[0].fill(cardGame.deck, 1);
+            stacks[0].transfer(cardGame.deck, 1);
             return stacks;
         }
 

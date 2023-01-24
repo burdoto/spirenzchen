@@ -36,7 +36,7 @@ public class CardGame {
 
         // init players
         for (Player plr : this.players) {
-            plr.fill(deck, type.starterCards);
+            plr.transfer(deck, type.starterCards);
             plr.sort(Card::compareTo);
         }
 

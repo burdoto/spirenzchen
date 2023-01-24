@@ -4,10 +4,8 @@ import org.comroid.api.IntegerAttribute;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Stack;
 
 public class Card implements Comparable<Card> {
     public final Face face;
@@ -66,14 +64,14 @@ public class Card implements Comparable<Card> {
             super.add(index, element);
         }
 
-        public void fill(Deck fromDeck, int toSize) {
+        public void transfer(Card.Stack from, int amount) {
             if (size() != 0)
                 throw new RuntimeException("Hand is not empty");
 
-            Collections.shuffle(fromDeck);
+            Collections.shuffle(from);
 
-            for (int i = 0; i < toSize; i++)
-                add(fromDeck.remove(0));
+            for (int i = 0; i < amount; i++)
+                add(from.remove(0));
         }
     }
     public enum Face implements Comparable<Face>, IntegerAttribute { Hearts, Diamonds, Clubs, Spades }
