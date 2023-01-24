@@ -96,6 +96,7 @@ public class CardGame {
 
     private void handleCmds(String... cmds) {
         var player = getCurrentPlayer();
+        player.sort(Card::compareTo);
         switch (cmds[0]) {
             case "exit":
                 return;
