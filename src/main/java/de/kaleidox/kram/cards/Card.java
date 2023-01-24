@@ -36,7 +36,8 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        return MessageFormat.format("{0} of {1}", value, face);
+        return MessageFormat.format("{0} of {1}",
+                value + " ".repeat(Math.max(0, 5 - value.toString().length())), face);
     }
 
     public static class Stack extends java.util.Stack<Card> {
