@@ -6,14 +6,48 @@ import org.jetbrains.annotations.NotNull;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class Card implements Comparable<Card> {
+    public static final Pattern pattern = Pattern.compile("(\\dJQKA)(HDCS)");
     public final Face face;
     public final Value value;
 
     public Card(Face face, Value value) {
         this.face = face;
         this.value = value;
+    }
+
+    public static Optional<Card> find(String ident) {
+        var matcher = pattern.matcher(ident.toUpperCase());
+        if (!matcher.matches())
+            return Optional.empty();
+        return Optional.of(new Card(
+                switch (matcher.group(1).charAt(0)) {
+                    case 'H' -> Face.Hearts;
+                    case 'D' -> Face.Diamonds;
+                    case 'C' -> Face.Clubs;
+                    case 'S' -> Face.Spades;
+                    default -> throw new IllegalArgumentException("Unexpected value: " + matcher.group(1).charAt(0));
+                },
+                switch (matcher.group(2)) {
+                    case "1" -> Value.Val1;
+                    case "2" -> Value.Val2;
+                    case "3" -> Value.Val3;
+                    case "4" -> Value.Val4;
+                    case "5" -> Value.Val5;
+                    case "6" -> Value.Val6;
+                    case "7" -> Value.Val7;
+                    case "8" -> Value.Val8;
+                    case "9" -> Value.Val9;
+                    case "10" -> Value.Val10;
+                    case "J" -> Value.Jack;
+                    case "K" -> Value.King;
+                    case "Q" -> Value.Queen;
+                    case "A" -> Value.Ace;
+                    default -> throw new IllegalStateException("Unexpected value: " + matcher.group(2).charAt(0));
+                }));
     }
 
     @Override
@@ -75,13 +109,15 @@ public class Card implements Comparable<Card> {
                 add(from.remove(0));
         }
     }
-    public enum Face implements Comparable<Face>, IntegerAttribute { Hearts, Diamonds, Clubs, Spades }
+
+    public enum Face implements Comparable<Face>, IntegerAttribute {Hearts, Diamonds, Clubs, Spades}
+
     public enum Value implements Comparable<Value>, IntegerAttribute {
-        Val1, Val2, Val3, Val4, Val5, Val6, Val7, Val8, Val9, Jack, Queen, King, Ace;
+        Val1, Val2, Val3, Val4, Val5, Val6, Val7, Val8, Val9, Val10, Jack, Queen, King, Ace;
 
         @Override
         public String toString() {
-            return ordinal() < 9 ? String.valueOf(ordinal() + 1) : name();
+            return ordinal() < 10 ? String.valueOf(ordinal() + 1) : name();
         }
     }
 }
