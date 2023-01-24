@@ -2,6 +2,9 @@ package de.kaleidox.kram.cards;
 
 import org.comroid.api.IntegerAttribute;
 
+import java.util.Arrays;
+import java.util.Vector;
+
 public enum GameType implements IntegerAttribute {
     MauMau(Deck.Preset.from7, 6) {
         @Override
@@ -22,6 +25,14 @@ public enum GameType implements IntegerAttribute {
             } else {
                 System.out.println("Invalid command: " + line);
             }
+        }
+
+        @Override
+        public boolean conclude(CardGame game) {
+            return (game.winner = Arrays.stream(game.players)
+                    .filter(Vector::isEmpty)
+                    .findAny()
+                    .orElse(null)) != null;
         }
 
         @Override
@@ -54,6 +65,14 @@ public enum GameType implements IntegerAttribute {
     }
 
     public void handleLine(CardGame game, String line, String[] cmds) {
+    }
+
+    /**
+     * @param game Game
+     * @return game over
+     */
+    public boolean conclude(CardGame game) {
+        return false;
     }
 
     public boolean canPlay(CardGame game, Player player, Card card, Card.Stack table) {

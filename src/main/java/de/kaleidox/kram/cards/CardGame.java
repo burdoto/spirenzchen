@@ -1,5 +1,7 @@
 package de.kaleidox.kram.cards;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.InputStreamReader;
@@ -21,6 +23,8 @@ public class CardGame {
     public final Deck deck;
     public Card.Stack[] table;
     private int currentPlayer;
+    private boolean playing = true;
+    @Nullable Player winner;
 
     public Player getCurrentPlayer() {
         return players[currentPlayer];
@@ -76,10 +80,11 @@ public class CardGame {
 
     private void pass() {
         System.out.printf("%s's turn%n", nextPlayer());
+        playing = !type.conclude(this);
     }
 
     private void play() {
-        while (true) {
+        while (playing) {
             try {
                 System.out.print(type.name() + "> ");
                 var line = in.readLine();
@@ -92,6 +97,10 @@ public class CardGame {
                 e.printStackTrace();
             }
         }
+
+        if (winner == null)
+            System.out.printf("Game concluded as a tie!%n");
+        else System.out.printf("%s has won the game!%n", winner);
     }
 
     private void handleCmds(String... cmds) {
@@ -143,6 +152,7 @@ public class CardGame {
                 System.out.printf("Drawn %d cards from %s%n", drawn, from.toString());
                 if (drawn == 1)
                     handleCmds("top");
+                pass();
                 break;
             case "play":
                 idx = cmds.length >= 2 ? Integer.parseInt(cmds[1]) : 0;
