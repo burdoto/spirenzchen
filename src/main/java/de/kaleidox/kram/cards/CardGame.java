@@ -104,6 +104,9 @@ public class CardGame {
                 break;
             case "table":
             case "top":
+                // top table 1 <-- list top card of table 1
+                // table 1 <-- list also top card of table 1
+                // top 1 <-- list top card of player 1
                 Stack<Card> from;
                 var iter = Arrays.stream(cmds).iterator();
                 boolean table = iter.next().equals("table");
