@@ -1,6 +1,7 @@
 package de.kaleidox.kram.cards;
 
 import org.comroid.api.IntegerAttribute;
+import org.comroid.api.Named;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
@@ -9,8 +10,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class Card implements Comparable<Card> {
-    public static final Pattern pattern = Pattern.compile("([\\dJQKA])([HDCS])");
+public class Card implements Comparable<Card>, Named {
+    public static final Pattern pattern = Pattern.compile("([\\dJQKA]0?)([HDCS])");
     public final Face face;
     public final Value value;
 
@@ -70,8 +71,13 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        return MessageFormat.format("{0} of {1}",
-                value + " ".repeat(Math.max(0, 5 - value.toString().length())), face);
+        return MessageFormat.format("{0} of {1}", value, face);
+    }
+
+    @Override
+    public String getAlternateName() {
+        String value = toString();
+        return value + " ".repeat(Math.max(0, 5 - value.length()));
     }
 
     public static class Stack extends java.util.Stack<Card> {

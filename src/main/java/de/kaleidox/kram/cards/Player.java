@@ -23,12 +23,18 @@ public class Player extends Card.Stack implements Named {
                 .count();
     }
 
-    public void play(CardGame game, int idx, Card.Stack target) {
+    public boolean play(CardGame game, int idx, Card.Stack target) {
         var card = get(idx);
         if (game.type.canPlay(game, this, card, target)) {
-            target.push(remove(idx));
+            Card item = remove(idx);
+            target.push(item);
+            game.type.cardPlayed(game, item);
             System.out.printf("Played card %d (%s) to table %s%n", idx, card, target);
-        } else System.err.printf("You cannot play an %s to table %s%n", card, target);
+            return true;
+        } else {
+            System.err.printf("You cannot play an %s to table %s%n", card, target);
+            return false;
+        }
     }
 
     @Override

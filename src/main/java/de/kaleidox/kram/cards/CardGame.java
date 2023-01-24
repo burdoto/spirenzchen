@@ -4,9 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.Console;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 public class CardGame {
@@ -20,12 +20,16 @@ public class CardGame {
     public final Player[] players;
     public final Deck deck;
     public Card.Stack[] table;
-    private int currentPlayer;
+    int currentPlayer;
+    IntUnaryOperator currentPlayerAdvancer = x -> x + 1;
     private boolean playing = true;
     @Nullable Player winner;
 
     public Player getCurrentPlayer() {
         return players[currentPlayer];
+    }
+    public Player getNextPlayer() {
+        return players[advancePlayerIndex()];
     }
 
     public CardGame(GameType type, int players) {
@@ -74,8 +78,22 @@ public class CardGame {
     }
 
     public Player nextPlayer() {
-        var plr = currentPlayer = currentPlayer + 1 >= players.length ? 0 : currentPlayer + 1;
-        return players[plr];
+        return players[advancePlayerIndex()];
+    }
+
+    void $advanceIndex() {
+        currentPlayer = advancePlayerIndex();
+    }
+
+    private int advancePlayerIndex() {
+        int i = currentPlayerAdvancer.applyAsInt(currentPlayer);
+        i = currentPlayer
+                = i >= players.length
+                ? i % players.length
+                : i < 0
+                ? i + players.length
+                : i;
+        return i;
     }
 
     private void pass() {
@@ -140,7 +158,7 @@ public class CardGame {
                         : currentPlayer];
                 hand.sort(Card::compareTo);
                 for (int i = 0; i < hand.size(); i++)
-                    System.out.printf("%d\t- %s%n", i, hand.get(i));
+                    System.out.printf("%d\t- %s%n", i, hand.get(i).getAlternateName());
                 break;
             case "players":
                 for (Player plr : players)
@@ -164,13 +182,23 @@ public class CardGame {
                 pass();
                 break;
             case "play":
-                idx = Card.parse(cmds[1])
-                        .map(card -> getCurrentPlayer().indexOf(card))
+                Optional<Card> parse = Card.parse(cmds[1]);
+                idx = parse.map(card -> getCurrentPlayer().indexOf(card))
                         .orElseGet(() -> Integer.parseInt(cmds[1]));
+                if (idx == -1)
+                {
+                    System.out.printf("Card not found in Player %d: %s%n", currentPlayer + 1, parse.orElse(null));
+                    break;
+                }
                 var tgt = cmds.length >= 3 ? Integer.parseInt(cmds[2]) : 0;
-                player.play(this, idx, this.table[tgt]);
-                pass();
+                if (player.play(this, idx, this.table[tgt]))
+                    pass();
                 break;
+            case "dash":
+                // clear console?
+                System.out.println(getCurrentPlayer());
+                handleCmds("hand");
+                handleCmds("table");
             default:
                 type.handleLine(this, String.join(" ", cmds), cmds);
         }
