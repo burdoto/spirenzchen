@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
+import java.io.Console;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -67,6 +68,7 @@ public class CardGame {
                 game.play();
             } catch (Exception e) {
                 e.printStackTrace();
+                return;
             }
         }
     }
@@ -102,15 +104,11 @@ public class CardGame {
         else System.out.printf("%s has won the game!%n", winner);
     }
 
-    private void handleCmds(String... cmds) {
+    void handleCmds(String... cmds) {
         var player = getCurrentPlayer();
         player.sort(Card::compareTo);
         switch (cmds[0]) {
             case "exit":
-                return;
-            case "dash":
-                handleCmds("hand");
-                handleCmds("table");
                 return;
             case "pass":
                 pass();

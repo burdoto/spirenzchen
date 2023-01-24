@@ -17,9 +17,14 @@ public enum GameType implements IntegerAttribute {
         @Override
         public void handleLine(CardGame game, String line, String[] cmds) {
             if (cmds.length == 1) {
-                if (cmds[0].equals("mau")) {
-                    System.out.println("mau");
-                    return;
+                switch (cmds[0]) {
+                    case "dash":
+                        game.handleCmds("hand");
+                        game.handleCmds("table");
+                        return;
+                    case "mau":
+                        System.out.println("mau");
+                        return;
                 }
                 throw new IllegalStateException("Unexpected value: " + cmds[0]);
             } else {
