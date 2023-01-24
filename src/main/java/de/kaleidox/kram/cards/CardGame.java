@@ -48,7 +48,9 @@ public class CardGame {
     }
 
     public static void main(String[] args) {
-        while (true) {
+        if (args.length > 0)
+            new CardGame(GameType.valueOf(args[0]), Integer.parseInt(args[1])).play();
+        else while (true) {
             try (Closeable unused = in) {
                 int players = 2;
                 CardGame game;
