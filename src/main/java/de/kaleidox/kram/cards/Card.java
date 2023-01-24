@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Card implements Comparable<Card> {
-    public static final Pattern pattern = Pattern.compile("(\\dJQKA)(HDCS)");
+    public static final Pattern pattern = Pattern.compile("([\\dJQKA])([HDCS])");
     public final Face face;
     public final Value value;
 
@@ -19,19 +19,19 @@ public class Card implements Comparable<Card> {
         this.value = value;
     }
 
-    public static Optional<Card> find(String ident) {
+    public static Optional<Card> parse(String ident) {
         var matcher = pattern.matcher(ident.toUpperCase());
         if (!matcher.matches())
             return Optional.empty();
         return Optional.of(new Card(
-                switch (matcher.group(1).charAt(0)) {
+                switch (matcher.group(2).charAt(0)) {
                     case 'H' -> Face.Hearts;
                     case 'D' -> Face.Diamonds;
                     case 'C' -> Face.Clubs;
                     case 'S' -> Face.Spades;
                     default -> throw new IllegalArgumentException("Unexpected value: " + matcher.group(1).charAt(0));
                 },
-                switch (matcher.group(2)) {
+                switch (matcher.group(1)) {
                     case "1" -> Value.Val1;
                     case "2" -> Value.Val2;
                     case "3" -> Value.Val3;

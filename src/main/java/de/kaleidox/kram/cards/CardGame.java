@@ -5,10 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class CardGame {
@@ -87,6 +84,7 @@ public class CardGame {
     private void play() {
         while (playing) {
             try {
+                handleCmds("dash");
                 System.out.print(type.name() + "> ");
                 var line = in.readLine();
 
@@ -138,6 +136,14 @@ public class CardGame {
                         table ? "Table " + idx : from,
                         from.empty() ? "nothing" : from.peek());
                 break;
+            case "hand":
+                List<Card> hand = players[cmds.length == 2
+                        ? Math.max(0, Integer.parseInt(cmds[1]) - 1)
+                        : currentPlayer];
+                hand.sort(Card::compareTo);
+                for (int i = 0; i < hand.size(); i++)
+                    System.out.printf("%d\t- %s%n", i, hand.get(i));
+                break;
             case "players":
                 for (Player plr : players)
                     System.out.println(plr);
@@ -160,18 +166,12 @@ public class CardGame {
                 pass();
                 break;
             case "play":
-                idx = cmds.length >= 2 ? Integer.parseInt(cmds[1]) : 0;
+                idx = Card.parse(cmds[1])
+                        .map(card -> getCurrentPlayer().indexOf(card))
+                        .orElseGet(() -> Integer.parseInt(cmds[1]));
                 var tgt = cmds.length >= 3 ? Integer.parseInt(cmds[2]) : 0;
                 player.play(this, idx, this.table[tgt]);
                 pass();
-                break;
-            case "hand":
-                List<Card> hand = players[cmds.length == 2
-                        ? Math.max(0, Integer.parseInt(cmds[1]) - 1)
-                        : currentPlayer];
-                hand.sort(Card::compareTo);
-                for (int i = 0; i < hand.size(); i++)
-                    System.out.printf("%d\t- %s%n", i, hand.get(i));
                 break;
             default:
                 type.handleLine(this, String.join(" ", cmds), cmds);
