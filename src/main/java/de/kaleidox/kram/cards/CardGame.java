@@ -61,9 +61,8 @@ public class CardGame {
                 try {
                     game = new CardGame(GameType.valueOf(line), players);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("error: ");
-                    e.printStackTrace();
-                    return;
+                    System.out.println("error: " + e.getMessage());
+                    continue;
                 }
 
                 game.play();
