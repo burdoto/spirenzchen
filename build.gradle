@@ -22,26 +22,23 @@ run {
     standardOutput = System.out
 }
 
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 repositories {
     maven { url 'https://maven.comroid.org' }
     mavenLocal()
     jcenter()
 }
 
-if (!isAutoDeploy) {
-    evaluationDependsOn ':guardian:uniform'
-    evaluationDependsOn ':guardian:restless'
-}
-
 dependencies {
     compileOnly 'org.jetbrains:annotations:19.0.0'
 
     if (isAutoDeploy) {
-        implementation 'org.comroid:webkit:0.+'
+        implementation 'org.comroid:api:1.+'
     } else {
-        implementation project(':guardian:uniform')
-        implementation project(':guardian:restless')
-        implementation project(':guardian:webkit')
+        implementation project(':api')
     }
 
     // logging dependencies

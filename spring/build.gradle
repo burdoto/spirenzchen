@@ -1,0 +1,76 @@
+plugins {
+    id 'war'
+    id 'application'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+
+group 'org.comroid'
+version '0.01-SNAPSHOT'
+
+apply from: "$parent.projectDir/gradle/vars.gradle"
+
+mainClassName = 'de.kaleidox.kram.cards.web.CardsWebGame'
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+tasks.findByName('wrapper')?.configure {
+    gradleVersion = '6.2'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+run {
+    standardInput = System.in
+    standardOutput = System.out
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+repositories {
+    maven { url 'https://maven.comroid.org' }
+    mavenLocal()
+    jcenter()
+}
+
+/*
+task simplifyDist(type: Copy, dependsOn: 'bootWar') {
+    from bootWar.outputs.files.singleFile
+    def target = file("$buildDir/dist")
+    into target
+    rename { String filename -> return "auth.war" }
+    System.out.printf("Simplifying file name to: %s/spirenzchen.war\n", target.getAbsolutePath())
+}
+*/
+
+dependencies {
+    compileOnly 'org.jetbrains:annotations:19.0.0'
+    implementation 'org.comroid:api:1.+'
+
+    // card game
+    implementation parent
+
+    // db
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
+    //implementation 'com.h2database:h2:2.1.214'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // web
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // mvc
+    implementation 'javax.servlet:jstl:1.2'
+    implementation 'taglibs:standard:1.1.2'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

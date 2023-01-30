@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Player extends Card.Stack implements Named {
-    public final int number;
+    public int number;
+
+    public int getNumber() {
+        return number;
+    }
 
     public Player(int no) {
         this.number = no;

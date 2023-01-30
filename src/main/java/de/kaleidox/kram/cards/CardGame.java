@@ -7,6 +7,7 @@ import java.io.Closeable;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CardGame {
@@ -17,7 +18,7 @@ public class CardGame {
     }
 
     public final GameType type;
-    public final Player[] players;
+    public final List<Player> players;
     public final Deck deck;
     public Card.Stack[] table;
     int currentPlayer;
@@ -25,18 +26,38 @@ public class CardGame {
     private boolean playing = true;
     @Nullable Player winner;
 
+    public GameType getType() {
+        return type;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public Card.Stack[] getTable() {
+        return table;
+    }
+
     public Player getCurrentPlayer() {
-        return players[currentPlayer];
+        return players.get(currentPlayer);
     }
     public Player getNextPlayer() {
-        return players[advancePlayerIndex()];
+        return players.get(advancePlayerIndex());
+    }
+
+    public Player getWinner() {
+        return winner;
     }
 
     public CardGame(GameType type, int players) {
         this.type = type;
         this.players = IntStream.rangeClosed(1, players)
                 .mapToObj(Player::new)
-                .toArray(Player[]::new);
+                .collect(Collectors.toList());
         this.deck = new Deck(type.deckPreset, type.decks);
         this.table = type.init(this);
 
@@ -47,6 +68,12 @@ public class CardGame {
         }
 
         Collections.shuffle(deck);
+    }
+
+    public Player addPlayer() {
+        var plr = new Player(players.size());
+        players.add(plr);
+        return plr;
     }
 
     public static void main(String[] args) {
@@ -78,7 +105,7 @@ public class CardGame {
     }
 
     public Player nextPlayer() {
-        return players[advancePlayerIndex()];
+        return players.get(advancePlayerIndex());
     }
 
     void $advanceIndex() {
@@ -88,10 +115,10 @@ public class CardGame {
     private int advancePlayerIndex() {
         int i = currentPlayerAdvancer.applyAsInt(currentPlayer);
         i = currentPlayer
-                = i >= players.length
-                ? i % players.length
+                = i >= players.size()
+                ? i % players.size()
                 : i < 0
-                ? i + players.length
+                ? i + players.size()
                 : i;
         return i;
     }
@@ -147,15 +174,15 @@ public class CardGame {
                 if ((table && arg0 != null && arg0.matches("\\d+"))
                         || (arg1 != null && arg1.matches("\\d+")))
                     idx = Integer.parseInt(arg1 != null ? arg1 : arg0);
-                from = (table ? this.table[idx] : players[Math.max(0, idx - 1)]);
+                from = (table ? this.table[idx] : players.get(Math.max(0, idx - 1)));
                 System.out.printf("Top card in %s: %s%n",
                         table ? "Table " + idx : from,
                         from.empty() ? "nothing" : from.peek());
                 break;
             case "hand":
-                List<Card> hand = players[cmds.length == 2
+                List<Card> hand = players.get(cmds.length == 2
                         ? Math.max(0, Integer.parseInt(cmds[1]) - 1)
-                        : currentPlayer];
+                        : currentPlayer);
                 hand.sort(Card::compareTo);
                 for (int i = 0; i < hand.size(); i++)
                     System.out.printf("%d\t- %s%n", i, hand.get(i).getAlternateName());
@@ -171,7 +198,7 @@ public class CardGame {
             case "draw":
                 int drawn = player.draw(
                         from = cmds.length == 3
-                                ? players[Math.max(0, Integer.parseInt(cmds[2]) - 1)]
+                                ? players.get(Math.max(0, Integer.parseInt(cmds[2]) - 1))
                                 : deck,
                         cmds.length == 2
                                 ? Integer.parseInt(cmds[1])

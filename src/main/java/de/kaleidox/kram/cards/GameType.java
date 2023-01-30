@@ -28,7 +28,7 @@ public enum GameType implements IntegerAttribute {
 
         @Override
         public boolean conclude(CardGame game) {
-            return (game.winner = Arrays.stream(game.players)
+            return (game.winner = game.players.stream()
                     .filter(Vector::isEmpty)
                     .findAny()
                     .orElse(null)) != null;
