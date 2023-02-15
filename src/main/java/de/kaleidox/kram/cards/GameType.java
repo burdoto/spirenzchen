@@ -1,16 +1,16 @@
 package de.kaleidox.kram.cards;
 
 import org.comroid.api.IntegerAttribute;
+import org.comroid.api.Named;
 
-import java.util.Arrays;
 import java.util.Vector;
 
-public enum GameType implements IntegerAttribute {
+public enum GameType implements IntegerAttribute, Named {
     MauMau(Deck.Preset.from7, 2) {
         @Override
         public Card.Stack[] init(CardGame cardGame) {
             Card.Stack[] stacks = super.init(cardGame);
-            stacks[0].transfer(cardGame.deck, 1);
+            stacks[0].draw(cardGame.deck, 1);
             return stacks;
         }
 

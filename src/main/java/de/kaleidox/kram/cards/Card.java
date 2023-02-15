@@ -80,6 +80,17 @@ public class Card implements Comparable<Card>, Named {
         return value + " ".repeat(Math.max(0, 5 - value.length()));
     }
 
+    public String getIdent() {
+        return getFaceIdent() + getValueIdent();
+    }
+
+    public String getFaceIdent() {
+        return String.valueOf(face.name().charAt(0));
+    }
+    public String getValueIdent() {
+        return value == Value.Val10 ? "10" : String.valueOf(value.name().charAt(0));
+    }
+
     public static class Stack extends java.util.Stack<Card> {
         public final int maxSize;
 
@@ -105,14 +116,29 @@ public class Card implements Comparable<Card>, Named {
             super.add(index, element);
         }
 
-        public void transfer(Card.Stack from, int amount) {
+        public int draw(Stack from, int amount) {
             if (size() != 0)
                 throw new RuntimeException("Hand is not empty");
 
             Collections.shuffle(from);
 
+            int c = 0;
             for (int i = 0; i < amount; i++)
-                add(from.remove(0));
+                if (add(from.remove(0)))
+                    c++;
+            return c;
+        }
+
+        public int transfer(Stack to, int... indices) {
+            if (size() != 0)
+                throw new RuntimeException("Hand is not empty");
+            if (indices == null || indices.length == 0)
+                indices = new int[]{0};
+            int c = 0;
+            for (int index : indices)
+                if (to.add(remove(index)))
+                    c++;
+            return c;
         }
     }
 

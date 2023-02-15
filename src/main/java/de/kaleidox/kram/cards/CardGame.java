@@ -1,10 +1,12 @@
 package de.kaleidox.kram.cards;
 
+import org.comroid.api.Polyfill;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
@@ -17,20 +19,22 @@ public class CardGame {
         in = new BufferedReader(new InputStreamReader(System.in));
     }
 
+    public final PrintStream out;
     public final GameType type;
     public final List<Player> players;
     public final Deck deck;
     public Card.Stack[] table;
     int currentPlayer;
     IntUnaryOperator currentPlayerAdvancer = x -> x + 1;
-    private boolean playing = true;
-    @Nullable Player winner;
+    public boolean playing = true;
+    @Nullable
+    public Player winner;
 
     public GameType getType() {
         return type;
     }
 
-    public List<Player> getPlayers() {
+    public List<? extends Player> getPlayers() {
         return players;
     }
 
@@ -49,36 +53,41 @@ public class CardGame {
         return players.get(advancePlayerIndex());
     }
 
-    public Player getWinner() {
+    public @Nullable Player getWinner() {
         return winner;
     }
 
-    public CardGame(GameType type, int players) {
+    public CardGame(PrintStream out, GameType type, List<? extends Player> players) {
+        this.out = out;
         this.type = type;
-        this.players = IntStream.rangeClosed(1, players)
-                .mapToObj(Player::new)
-                .collect(Collectors.toList());
+        this.players = (List<Player>) players;
         this.deck = new Deck(type.deckPreset, type.decks);
         this.table = type.init(this);
 
         // init players
         for (Player plr : this.players) {
-            plr.transfer(deck, type.starterCards);
+            plr.draw(deck, type.starterCards);
             plr.sort(Card::compareTo);
         }
 
         Collections.shuffle(deck);
     }
 
+    public CardGame(PrintStream out, GameType type, int players) {
+        this(out, type, IntStream.rangeClosed(1, players)
+                .mapToObj(Player::new)
+                .collect(Collectors.toList()));
+    }
+
     public Player addPlayer() {
         var plr = new Player(players.size());
-        players.add(plr);
+        players.add(Polyfill.uncheckedCast(plr));
         return plr;
     }
 
     public static void main(String[] args) {
         if (args.length > 0)
-            new CardGame(GameType.valueOf(args[0]), Integer.parseInt(args[1])).play();
+            new CardGame(System.out, GameType.valueOf(args[0]), Integer.parseInt(args[1])).play();
         else while (true) {
             try (Closeable unused = in) {
                 int players = 2;
@@ -90,7 +99,7 @@ public class CardGame {
                     return;
 
                 try {
-                    game = new CardGame(GameType.valueOf(line), players);
+                    game = new CardGame(System.out, GameType.valueOf(line), players);
                 } catch (IllegalArgumentException e) {
                     System.out.println("error: " + e.getMessage());
                     continue;
@@ -123,8 +132,8 @@ public class CardGame {
         return i;
     }
 
-    private void pass() {
-        System.out.printf("%s's turn%n", nextPlayer());
+    public void pass() {
+        out.printf("%s's turn%n", nextPlayer());
         playing = !type.conclude(this);
     }
 
@@ -132,7 +141,7 @@ public class CardGame {
         while (playing) {
             try {
                 handleCmds("dash");
-                System.out.print(type.name() + "> ");
+                out.print(type.name() + "> ");
                 var line = in.readLine();
 
                 if (line.isEmpty())
@@ -145,8 +154,8 @@ public class CardGame {
         }
 
         if (winner == null)
-            System.out.printf("Game concluded as a tie!%n");
-        else System.out.printf("%s has won the game!%n", winner);
+            out.printf("Game concluded as a tie!%n");
+        else out.printf("%s has won the game!%n", winner);
     }
 
     void handleCmds(String... cmds) {
@@ -175,7 +184,7 @@ public class CardGame {
                         || (arg1 != null && arg1.matches("\\d+")))
                     idx = Integer.parseInt(arg1 != null ? arg1 : arg0);
                 from = (table ? this.table[idx] : players.get(Math.max(0, idx - 1)));
-                System.out.printf("Top card in %s: %s%n",
+                out.printf("Top card in %s: %s%n",
                         table ? "Table " + idx : from,
                         from.empty() ? "nothing" : from.peek());
                 break;
@@ -185,15 +194,15 @@ public class CardGame {
                         : currentPlayer);
                 hand.sort(Card::compareTo);
                 for (int i = 0; i < hand.size(); i++)
-                    System.out.printf("%d\t- %s%n", i, hand.get(i).getAlternateName());
+                    out.printf("%d\t- %s%n", i, hand.get(i).getAlternateName());
                 break;
             case "players":
                 for (Player plr : players)
-                    System.out.println(plr);
+                    out.println(plr);
                 break;
             case "deck":
                 for (Card card : deck)
-                    System.out.println(card);
+                    out.println(card);
                 break;
             case "draw":
                 int drawn = player.draw(
@@ -203,7 +212,7 @@ public class CardGame {
                         cmds.length == 2
                                 ? Integer.parseInt(cmds[1])
                                 : 1);
-                System.out.printf("Drawn %d cards from %s%n", drawn, from.toString());
+                out.printf("Drawn %d cards from %s%n", drawn, from.toString());
                 if (drawn == 1)
                     handleCmds("top");
                 pass();
@@ -214,7 +223,7 @@ public class CardGame {
                         .orElseGet(() -> Integer.parseInt(cmds[1]));
                 if (idx == -1)
                 {
-                    System.out.printf("Card not found in Player %d: %s%n", currentPlayer + 1, parse.orElse(null));
+                    out.printf("Card not found in Player %d: %s%n", currentPlayer + 1, parse.orElse(null));
                     break;
                 }
                 var tgt = cmds.length >= 3 ? Integer.parseInt(cmds[2]) : 0;
@@ -223,7 +232,7 @@ public class CardGame {
                 break;
             case "dash":
                 // clear console?
-                System.out.println(getCurrentPlayer());
+                out.println(getCurrentPlayer());
                 handleCmds("hand");
                 handleCmds("table");
             default:

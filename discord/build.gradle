@@ -1,0 +1,59 @@
+plugins {
+    id 'application'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group 'org.comroid'
+version '0.01-SNAPSHOT'
+
+apply from: "$parent.projectDir/gradle/vars.gradle"
+
+mainClassName = 'de.kaleidox.kram.cards.dcb.CardsDiscordBot'
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+tasks.findByName('wrapper')?.configure {
+    gradleVersion = '6.2'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+application {
+    applicationDefaultJvmArgs = ['-add-opens java.base/java.util=ALL-UNNAMED']
+}
+
+repositories {
+    maven { url 'https://maven.comroid.org' }
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'org.jetbrains:annotations:19.0.0'
+
+    if (findProject(':api') == null)
+        implementation 'org.comroid:api:1.+'
+    else implementation project(':api')
+
+    // card game
+    implementation parent
+
+    // discord
+    implementation 'net.dv8tion:JDA:5.0.+'
+    implementation 'com.github.ygimenez:Pagination-Utils:3.0.+'
+
+    // db
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.+'
+    //implementation 'com.h2database:h2:2.1.214'
+
+    // spring
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
